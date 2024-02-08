@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/render.dir/src/main.cpp.o CMakeFiles/render.dir/src/AbstractObject.cpp.o CMakeFiles/render.dir/src/MathUtils.cpp.o -o render  /usr/lib/x86_64-linux-gnu/libsfml-graphics.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-window.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-system.so.2.5.1 

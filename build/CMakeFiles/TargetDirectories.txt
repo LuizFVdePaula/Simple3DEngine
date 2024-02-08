@@ -1,0 +1,3 @@
+/home/vezzali/Desktop/code/3d/build/CMakeFiles/render.dir
+/home/vezzali/Desktop/code/3d/build/CMakeFiles/edit_cache.dir
+/home/vezzali/Desktop/code/3d/build/CMakeFiles/rebuild_cache.dir
