@@ -7,7 +7,9 @@ int main() {
     const float zfar = 1000;
     const float znear = 0.1;
     
-    sf::RenderWindow window(sf::VideoMode(width, height), "my window!", sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(width, height), "Simple Render", sf::Style::Default);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     Camera cam(width, height, fov, zfar, znear);
 
@@ -15,8 +17,12 @@ int main() {
     mountains.transform_mesh(translationMatrix4D(0, 10, 0) * rotationMatrix4DX(3.141592));
     mountains.update_triangles();
 
+    CustomObject teapot("../obj/teapot.obj", &cam);
+    teapot.transform_mesh(translationMatrix4D(0, -15, 5) * rotationMatrix4DX(3.141592));
+    teapot.update_triangles();
+
     while (window.isOpen()) {
-        window.clear();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -59,9 +65,11 @@ int main() {
                     }
                 }
                 mountains.update_triangles();
+                teapot.update_triangles();
             }
         }
         window.draw(mountains);
+        window.draw(teapot);
         window.display();
     }
 }

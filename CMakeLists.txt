@@ -9,9 +9,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
 find_package(SFML 2.5.1 COMPONENTS graphics REQUIRED)
+find_package(OpenGL REQUIRED)
 
 include_directories(${INCLUDE_DIR})
 
 add_compile_options(-Wall -Wextra -pedantic -O3)
 add_executable(render src/main.cpp src/AbstractObject.cpp src/MathUtils.cpp)
-target_link_libraries(render sfml-graphics)
+target_link_libraries(render sfml-graphics OpenGL::GL)

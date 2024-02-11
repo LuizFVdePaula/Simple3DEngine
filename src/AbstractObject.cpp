@@ -60,7 +60,8 @@ void AbstractObject::update_triangles() {
 
     const Vector4D vecLightSource = pCamera->View() *  Vector4D({0.707, -0.707, 0, 0});
     
-    for (std::size_t i = 0; i < vTriangles.size(); i++) {
+    //for (std::size_t i = 0; i < vTriangles.size(); i++) {
+    for (std::size_t i = 0; i < vMesh.size(); i++) {
         Triangle4D triTransformedTriangle = transform_triangle(pCamera->View(), vMesh[i]);
 
         Triangle4D triProjTriangle = transform_triangle(pCamera->matProjectionMatrix, triTransformedTriangle);
@@ -77,17 +78,23 @@ void AbstractObject::update_triangles() {
                 if (triProjTriangle.vecPoint[j].at(3) != 0) {
                     triProjTriangle.vecPoint[j] = Vector4D({triProjTriangle.vecPoint[j].at(0) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(1) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(2) / triProjTriangle.vecPoint[j].at(3), 1});
                 }
-                vTriangles[i].setPoint(j, sf::Vector2f((triProjTriangle.vecPoint[j].at(0) + 1) * pCamera->fScreenWidth / 2, (triProjTriangle.vecPoint[j].at(1) + 1) * pCamera->fScreenHeight / 2));
+                //vTriangles[i].setPoint(j, sf::Vector2f((triProjTriangle.vecPoint[j].at(0) + 1) * pCamera->fScreenWidth / 2, (triProjTriangle.vecPoint[j].at(1) + 1) * pCamera->fScreenHeight / 2));
+                vTriangles[3 * i + j].position = sf::Vector2f((triProjTriangle.vecPoint[j].at(0) + 1) * pCamera->fScreenWidth / 2, (triProjTriangle.vecPoint[j].at(1) + 1) * pCamera->fScreenHeight / 2);
             }
             float fAlpha = (dotprod(vecNormal, vecLightSource) + 1) / 2;
-            vTriangles[i].setFillColor(sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255));
+            //vTriangles[i].setFillColor(sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255));
+            vTriangles[3 * i].color = sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255);
+            vTriangles[3 * i + 1].color = sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255);
+            vTriangles[3 * i + 2].color = sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255);
+
             float fCMZ = triTransformedTriangle.vecPoint[0].at(2) + triTransformedTriangle.vecPoint[1].at(2) + triTransformedTriangle.vecPoint[2].at(2);
-            lTrianglesToRasterize.emplace_back(RasterTriangle{&vTriangles[i], fCMZ});
+            //lTrianglesToRasterize.emplace_back(RasterTriangle{&vTriangles[i], fCMZ});
+            lTrianglesToRasterize.emplace_back(RasterTriangle{&vTriangles[3 * i], fCMZ});
         }
     }
     lTrianglesToRasterize.sort();
 }
-
+/*
 void AbstractObject::update_triangles(const Matrix4D& T) {
     lTrianglesToRasterize.clear();
 
@@ -120,10 +127,13 @@ void AbstractObject::update_triangles(const Matrix4D& T) {
     }
     lTrianglesToRasterize.sort();
 }
-
+*/
 void AbstractObject::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    //for (const RasterTriangle& Tri : lTrianglesToRasterize) {
+    //    target.draw(*Tri.pTri);
+    //}
     for (const RasterTriangle& Tri : lTrianglesToRasterize) {
-        target.draw(*Tri.pTri);
+        target.draw(Tri.pTri, 3, sf::Triangles);
     }
 }
 
@@ -136,12 +146,16 @@ CustomObject::CustomObject(const std::string filename, Camera* camera) {
     });
 
     vTriangles.resize(vMesh.size());
-    vVisibleTriangles.resize(vMesh.size());
 
-    for (sf::ConvexShape& tri : vTriangles) {
-        tri.setPointCount(3);
-        tri.setFillColor(sf::Color::White);
-        //tri.setOutlineThickness(0.5);
-        //tri.setOutlineColor(sf::Color::Red);
+    //for (sf::ConvexShape& tri : vTriangles) {
+    //    tri.setPointCount(3);
+    //    tri.setFillColor(sf::Color::White);
+    //    //tri.setOutlineThickness(0.5);
+    //    //tri.setOutlineColor(sf::Color::Red);
+    //}
+    vTriangles.setPrimitiveType(sf::Triangles);
+    vTriangles.resize(3 * vMesh.size());
+    for (std::size_t i = 0; i < vTriangles.getVertexCount(); i++) {
+        vTriangles[i].color = sf::Color::White;        
     }
 }
