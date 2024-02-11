@@ -12,6 +12,7 @@ struct Triangle4D {
 };
 
 Triangle4D transform_triangle(const Matrix4D&, const Triangle4D&);
+bool is_inside_fov(const Triangle4D&);
 
 struct RasterTriangle {
     sf::ConvexShape* pTri = nullptr;

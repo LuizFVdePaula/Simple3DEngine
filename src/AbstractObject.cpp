@@ -4,6 +4,21 @@ Triangle4D transform_triangle(const Matrix4D& T, const Triangle4D& triangle) {
     return Triangle4D{T * triangle.vecPoint[0], T * triangle.vecPoint[1], T * triangle.vecPoint[2]};
 }
 
+bool is_inside_fov(const Triangle4D& triangle) {
+    const float tx = 1.25; // hardcoded!!! -> std::tan(fFOV / 2) / fAspectRatio
+    const float ty = 1; // hardcoded!!! -> std::tan(fFOV / 2)
+    if (!(triangle.vecPoint[0].at(2) > 1 && triangle.vecPoint[1].at(2) > 1 && triangle.vecPoint[2].at(2) > 1)) {
+        return false;
+    }
+    if (tx * triangle.vecPoint[0].at(2) < std::abs(triangle.vecPoint[0].at(0)) && tx * triangle.vecPoint[1].at(2) < std::abs(triangle.vecPoint[1].at(0)) && tx * triangle.vecPoint[2].at(2) < std::abs(triangle.vecPoint[2].at(0))) {
+        return false;
+    }
+    if (ty * triangle.vecPoint[0].at(2) < std::abs(triangle.vecPoint[0].at(1)) && ty * triangle.vecPoint[1].at(2) < std::abs(triangle.vecPoint[1].at(1)) && ty * triangle.vecPoint[2].at(2) < std::abs(triangle.vecPoint[2].at(1))) {
+        return false;
+    }
+    return true;
+}
+
 bool operator<(const RasterTriangle& A, const RasterTriangle& B) {
     return A.fDist > B.fDist;
 }
@@ -57,8 +72,7 @@ void AbstractObject::update_triangles() {
         Vector4D vecPointing = triTransformedTriangle.vecPoint[0];
         vecPointing = vecPointing / std::sqrt(dotprod(vecPointing, vecPointing));
 
-        if ((dotprod(vecNormal, vecPointing) < 0.0) 
-            && (triTransformedTriangle.vecPoint[0].at(2) > 1 && triTransformedTriangle.vecPoint[1].at(2) > 1 && triTransformedTriangle.vecPoint[2].at(2) > 1)) {
+        if ((dotprod(vecNormal, vecPointing) < 0.0) && is_inside_fov(triTransformedTriangle)) {
             for (std::size_t j = 0; j < 3; j++) {
                 if (triProjTriangle.vecPoint[j].at(3) != 0) {
                     triProjTriangle.vecPoint[j] = Vector4D({triProjTriangle.vecPoint[j].at(0) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(1) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(2) / triProjTriangle.vecPoint[j].at(3), 1});
@@ -68,7 +82,7 @@ void AbstractObject::update_triangles() {
             float fAlpha = (dotprod(vecNormal, vecLightSource) + 1) / 2;
             vTriangles[i].setFillColor(sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255));
             float fCMZ = triTransformedTriangle.vecPoint[0].at(2) + triTransformedTriangle.vecPoint[1].at(2) + triTransformedTriangle.vecPoint[2].at(2);
-            lTrianglesToRasterize.push_back(RasterTriangle{&vTriangles[i], fCMZ});
+            lTrianglesToRasterize.emplace_back(RasterTriangle{&vTriangles[i], fCMZ});
         }
     }
     lTrianglesToRasterize.sort();
@@ -91,8 +105,7 @@ void AbstractObject::update_triangles(const Matrix4D& T) {
         Vector4D vecPointing = triTransformedTriangle.vecPoint[0];
         vecPointing = vecPointing / std::sqrt(dotprod(vecPointing, vecPointing));
 
-        if ((dotprod(vecNormal, vecPointing) < 0.0) 
-            && (triTransformedTriangle.vecPoint[0].at(2) > 1 && triTransformedTriangle.vecPoint[1].at(2) > 1 && triTransformedTriangle.vecPoint[2].at(2) > 1)) {
+        if ((dotprod(vecNormal, vecPointing) < 0.0) && is_inside_fov(triTransformedTriangle)) {
             for (std::size_t j = 0; j < 3; j++) {
                 if (triProjTriangle.vecPoint[j].at(3) != 0) {
                     triProjTriangle.vecPoint[j] = Vector4D({triProjTriangle.vecPoint[j].at(0) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(1) / triProjTriangle.vecPoint[j].at(3), triProjTriangle.vecPoint[j].at(2) / triProjTriangle.vecPoint[j].at(3), 1});
@@ -102,7 +115,7 @@ void AbstractObject::update_triangles(const Matrix4D& T) {
             float fAlpha = (dotprod(vecNormal, vecLightSource) + 1) / 2;
             vTriangles[i].setFillColor(sf::Color(255 * fAlpha, 255 * fAlpha, 255 * fAlpha, 255));
             float fCMZ = triTransformedTriangle.vecPoint[0].at(2) + triTransformedTriangle.vecPoint[1].at(2) + triTransformedTriangle.vecPoint[2].at(2);
-            lTrianglesToRasterize.push_back(RasterTriangle{&vTriangles[i], fCMZ});
+            lTrianglesToRasterize.emplace_back(RasterTriangle{&vTriangles[i], fCMZ});
         }
     }
     lTrianglesToRasterize.sort();

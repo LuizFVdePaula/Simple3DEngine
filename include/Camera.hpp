@@ -69,6 +69,9 @@ public:
     }
 
     void RotateX(const float pitch) {
+        if (std::abs(fPitch + pitch) > 1.4) {
+            return;
+        }
         fPitch += pitch;
         vecLookDir = rotationMatrix4DY(fYaw) * rotationMatrix4DX(fPitch) * Vector4D({0, 0, 1, 0});
         vecUp = rotationMatrix4DY(fYaw) * rotationMatrix4DX(fPitch) * Vector4D({0, -1, 0, 0});
